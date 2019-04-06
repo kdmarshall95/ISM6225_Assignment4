@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using static ISM6225_Assignment4.Models.EF_Models;
 using ISM6225_Assignment4.Models;
+using ISM6225_Assignment4.DataAccess;
 using System.Net.Http;
 using Newtonsoft.Json;
 
@@ -26,8 +28,8 @@ namespace ISM6225_Assignment4.Controllers
         public List<Symbol> GetSymbols()
         {
             string IEXTrading_API_PATH = BASE_URL + "ref-data/symbols";
-            string companyList = "";
-            List<Symbol> companies = null;
+            string symbolList = "";
+            List<Symbol> symbols = null;
 
             // Connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
@@ -36,24 +38,24 @@ namespace ISM6225_Assignment4.Controllers
             // Read the Json objects in the API response
             if (response.IsSuccessStatusCode)
             {
-                companyList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                symbolList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             }
 
             // Parse the Json strings as C# objects
-            if (!companyList.Equals(""))
+            if (!symbolList.Equals(""))
             {
-                companies = JsonConvert.DeserializeObject<List<Symbol>>(companyList);
+                symbols = JsonConvert.DeserializeObject<List<Symbol>>(symbolList);
             }
 
-            return companies;
+            return symbols;
         }
 
         public IActionResult Index()
         {
             // Get the data from the List using GetSymbols method
-            List<Symbol> companies = GetSymbols();
+            List<Symbol> symbols = GetSymbols();
             // Send the data to the Index view
-            return View(companies);
+            return View(symbols);
         }
 
         public IActionResult About()
