@@ -14,11 +14,27 @@ namespace ISM6225_Assignment4.Controllers
 {
     public class HomeController : Controller
     {
+        /*
+            These lines are needed to use the Database context,
+            define the connection to the API, and use the
+            HttpClient to request data from the API
+        */
+        public ApplicationDbContext dbContext;
+        //Base URL for the IEXTrading API. Method specific URLs are appended to this base URL.
         string BASE_URL = "https://api.iextrading.com/1.0/";
         HttpClient httpClient;
 
-        public HomeController()
+        /*
+             These lines create a Constructor for the HomeController.
+             Then, the Database context is defined in a variable.
+             Then, an instance of the HttpClient is created.
+
+        */
+
+        public HomeController(ApplicationDbContext context)
         {
+            dbContext = context;
+
             httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new
@@ -31,24 +47,27 @@ namespace ISM6225_Assignment4.Controllers
             string symbolList = "";
             List<Symbol> symbols = null;
 
-            // Connect to the IEXTrading API and retrieve information
+            // connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
             HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
 
-            // Read the Json objects in the API response
+            // read the Json objects in the API response
             if (response.IsSuccessStatusCode)
             {
                 symbolList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             }
 
-            // Parse the Json strings as C# objects
+            // now, parse the Json strings as C# objects
             if (!symbolList.Equals(""))
             {
+                // https://stackoverflow.com/a/46280739
                 symbols = JsonConvert.DeserializeObject<List<Symbol>>(symbolList);
+                symbols = symbols.GetRange(0, 50);
             }
 
             return symbols;
         }
+
 
         public IActionResult Index()
         {

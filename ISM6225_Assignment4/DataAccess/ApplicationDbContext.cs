@@ -14,7 +14,7 @@ namespace ISM6225_Assignment4.DataAccess
         public DbSet<Symbol> Symbols { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<KeyStats> Stats { get; set; }
-        public DbSet<Chart> Charts { get; set; }
+        public DbSet<Equity> Equities { get; set; }
         public DbSet<Quote> Quotes { get; set; }
     }
 }
