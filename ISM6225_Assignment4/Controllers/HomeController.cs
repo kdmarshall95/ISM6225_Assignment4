@@ -43,7 +43,7 @@ namespace ISM6225_Assignment4.Controllers
 
         public List<Symbol> GetSymbols()
         {
-            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/company";
+            string IEXTrading_API_PATH = BASE_URL + "ref-data/symbols";
             string symbolList = "";
             List<Symbol> symbols = null;
 
@@ -106,6 +106,242 @@ namespace ISM6225_Assignment4.Controllers
             ViewBag.dbSuccessComp = 1;
             return View("Index", symbols);
         }
+
+        public List<Equity> GetChart(string symbol)
+        {
+            // string to specify information to be retrieved from the API
+            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/batch?types=chart&range=1y";
+
+            // initialize objects needed to gather data
+            string charts = "";
+            List<Equity> Equities = new List<Equity>();
+            httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
+
+            // connect to the API and obtain the response
+            HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            // now, obtain the Json objects in the response as a string
+            if (response.IsSuccessStatusCode)
+            {
+                charts = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // parse the string into appropriate objects
+            if (!charts.Equals(""))
+            {
+                ChartRoot root = JsonConvert.DeserializeObject<ChartRoot>(charts,
+                  new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                Equities = root.chart.ToList();
+            }
+
+            // fix the relations. By default the quotes do not have the company symbol
+            //  this symbol serves as the foreign key in the database and connects the quote to the company
+            foreach (Equity Equity in Equities)
+            {
+                Equity.symbol = symbol;
+            }
+
+            return Equities;
+        }
+
+        public List<Company> GetCompanies(string symbol)
+        {
+            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/company";
+            string companyList = "";
+            List<Company> companies = null;
+
+            // connect to the IEXTrading API and retrieve information
+            httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
+            HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            // read the Json objects in the API response
+            if (response.IsSuccessStatusCode)
+            {
+                companyList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // now, parse the Json strings as C# objects
+            if (!companyList.Equals(""))
+            {
+                // https://stackoverflow.com/a/46280739
+                companies = JsonConvert.DeserializeObject<List<Company>>(companyList);
+                companies = companies.GetRange(0, 50);
+            }
+
+            return companies;
+        }
+
+        /*
+            The Symbols action calls the GetSymbols method that returns a list of Companies.
+            This list of Companies is passed to the Symbols View.
+        */
+        public IActionResult Companies(string symbol)
+        {
+            //Set ViewBag variable first
+            ViewBag.dbSuccessComp = 0;
+            List<Company> companies = GetCompanies(symbol);
+
+            //Save companies in TempData, so they do not have to be retrieved again
+            TempData["Companies"] = JsonConvert.SerializeObject(companies);
+
+            return View(companies);
+        }
+
+        /*
+            Save the available symbols in the database
+        */
+        public IActionResult PopulateCompanies()
+        {
+            // Retrieve the companies that were saved in the symbols method
+            List<Company> companies = JsonConvert.DeserializeObject<List<Company>>(TempData["Companies"].ToString());
+
+            foreach (Company company in companies)
+            {
+                //Database will give PK constraint violation error when trying to insert record with existing PK.
+                //So add company only if it doesnt exist, check existence using symbol (PK)
+                if (dbContext.Companies.Where(c => c.symbol.Equals(company.symbol)).Count() == 0)
+                {
+                    dbContext.Companies.Add(company);
+                }
+            }
+
+            dbContext.SaveChanges();
+            ViewBag.dbSuccessComp = 1;
+            return View("Index", companies);
+        }
+
+        public List<KeyStats> GetKeyStats(string symbol)
+        {
+            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/stats";
+            string kstatsList = "";
+            List<KeyStats> stats = null;
+
+            // connect to the IEXTrading API and retrieve information
+            httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
+            HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            // read the Json objects in the API response
+            if (response.IsSuccessStatusCode)
+            {
+                kstatsList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // now, parse the Json strings as C# objects
+            if (!kstatsList.Equals(""))
+            {
+                // https://stackoverflow.com/a/46280739
+                stats = JsonConvert.DeserializeObject<List<KeyStats>>(kstatsList);
+            }
+
+            return stats;
+        }
+
+        /*
+            The Symbols action calls the GetSymbols method that returns a list of Companies.
+            This list of Companies is passed to the Symbols View.
+        */
+        public IActionResult KeyStats(string symbol)
+        {
+            //Set ViewBag variable first
+            ViewBag.dbSuccessComp = 0;
+            List<KeyStats> stats = GetKeyStats(symbol);
+
+            //Save companies in TempData, so they do not have to be retrieved again
+            TempData["Stats"] = JsonConvert.SerializeObject(stats);
+
+            return View(stats);
+        }
+
+        /*
+            Save the available symbols in the database
+        */
+        public IActionResult PopulateStats()
+        {
+            // Retrieve the companies that were saved in the symbols method
+            List<KeyStats> stats = JsonConvert.DeserializeObject<List<KeyStats>>(TempData["Stats"].ToString());
+
+            foreach (KeyStats keyStats in stats)
+            {
+                //Database will give PK constraint violation error when trying to insert record with existing PK.
+                //So add company only if it doesnt exist, check existence using symbol (PK)
+                if (dbContext.Stats.Where(ks => ks.KeyStatsId.Equals(keyStats.KeyStatsId)).Count() == 0)
+                {
+                    dbContext.Stats.Add(keyStats);
+                }
+            }
+
+            dbContext.SaveChanges();
+            ViewBag.dbSuccessComp = 1;
+            return View("Index", stats);
+        }
+
+        public List<Quote> GetQuotes(string symbol)
+        {
+            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/quote";
+            string quoteList = "";
+            List<Quote> quotes = null;
+
+            // connect to the IEXTrading API and retrieve information
+            httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
+            HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            // read the Json objects in the API response
+            if (response.IsSuccessStatusCode)
+            {
+                quoteList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // now, parse the Json strings as C# objects
+            if (!quoteList.Equals(""))
+            {
+                // https://stackoverflow.com/a/46280739
+                quotes = JsonConvert.DeserializeObject<List<Quote>>(quoteList);
+                quotes = quotes.GetRange(0, 50);
+            }
+
+            return quotes;
+        }
+
+        /*
+            The Symbols action calls the GetSymbols method that returns a list of Companies.
+            This list of Companies is passed to the Symbols View.
+        */
+        public IActionResult Quotes(string symbol)
+        {
+            //Set ViewBag variable first
+            ViewBag.dbSuccessComp = 0;
+            List<Quote> quotes = GetQuotes(symbol);
+
+            //Save companies in TempData, so they do not have to be retrieved again
+            TempData["Quotes"] = JsonConvert.SerializeObject(quotes);
+
+            return View(quotes);
+        }
+
+        /*
+            Save the available symbols in the database
+        */
+        public IActionResult PopulateQuotes()
+        {
+            // Retrieve the companies that were saved in the symbols method
+            List<Quote> quotes = JsonConvert.DeserializeObject<List<Quote>>(TempData["Quotes"].ToString());
+
+            foreach (Quote quote in quotes)
+            {
+                //Database will give PK constraint violation error when trying to insert record with existing PK.
+                //So add company only if it doesnt exist, check existence using symbol (PK)
+                if (dbContext.Quotes.Where(q => q.QuoteId.Equals(quote.QuoteId)).Count() == 0)
+                {
+                    dbContext.Quotes.Add(quote);
+                }
+            }
+
+            dbContext.SaveChanges();
+            ViewBag.dbSuccessComp = 1;
+            return View("Index", quotes);
+        }
+
+        // ******************************************************************************************************************//
 
 
         public IActionResult Index()
