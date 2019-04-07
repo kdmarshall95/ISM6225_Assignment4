@@ -43,7 +43,7 @@ namespace ISM6225_Assignment4.Controllers
 
         public List<Symbol> GetSymbols()
         {
-            string IEXTrading_API_PATH = BASE_URL + "ref-data/symbols";
+            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/company";
             string symbolList = "";
             List<Symbol> symbols = null;
 
@@ -68,12 +68,54 @@ namespace ISM6225_Assignment4.Controllers
             return symbols;
         }
 
+        /*
+            The Symbols action calls the GetSymbols method that returns a list of Companies.
+            This list of Companies is passed to the Symbols View.
+        */
+        public IActionResult Symbols()
+        {
+            //Set ViewBag variable first
+            ViewBag.dbSuccessComp = 0;
+            List<Symbol> symbols = GetSymbols();
+
+            //Save companies in TempData, so they do not have to be retrieved again
+            TempData["Symbols"] = JsonConvert.SerializeObject(symbols);
+
+            return View(symbols);
+        }
+
+        /*
+            Save the available symbols in the database
+        */
+        public IActionResult PopulateSymbols()
+        {
+            // Retrieve the companies that were saved in the symbols method
+            List<Symbol> symbols = JsonConvert.DeserializeObject<List<Symbol>>(TempData["Symbols"].ToString());
+
+            foreach (Symbol symbol in symbols)
+            {
+                //Database will give PK constraint violation error when trying to insert record with existing PK.
+                //So add company only if it doesnt exist, check existence using symbol (PK)
+                if (dbContext.Symbols.Where(s => s.symbol.Equals(symbol.symbol)).Count() == 0)
+                {
+                    dbContext.Symbols.Add(symbol);
+                }
+            }
+
+            dbContext.SaveChanges();
+            ViewBag.dbSuccessComp = 1;
+            return View("Index", symbols);
+        }
+
 
         public IActionResult Index()
         {
-            // Get the data from the List using GetSymbols method
+            ViewBag.dbSuccessComp = 0;
             List<Symbol> symbols = GetSymbols();
-            // Send the data to the Index view
+
+            //Save companies in TempData, so they do not have to be retrieved again
+            TempData["Symbols"] = JsonConvert.SerializeObject(symbols);
+
             return View(symbols);
         }
 

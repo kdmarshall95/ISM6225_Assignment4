@@ -108,6 +108,7 @@ namespace ISM6225_Assignment4.Models
             public int month3ChangePercent { get; set; }
             public int month1ChangePercent { get; set; }
             public int day5ChangePercent { get; set; }
+            public float evEBITDA { get; set; }
         }
 
         public class Quote
