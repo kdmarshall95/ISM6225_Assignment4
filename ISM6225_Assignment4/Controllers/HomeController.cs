@@ -9,6 +9,7 @@ using ISM6225_Assignment4.Models;
 using ISM6225_Assignment4.DataAccess;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ISM6225_Assignment4.Controllers
 {
@@ -66,6 +67,25 @@ namespace ISM6225_Assignment4.Controllers
             }
 
             return symbols;
+        }
+
+        public List<KeyStats> GetOurPicks()
+        {
+            List<Symbol> symbols = GetSymbols();
+            List<KeyStats> statsList = new List<KeyStats>();
+            //PopulateSymbols();
+
+            foreach (Symbol s in symbols)
+            {
+                statsList.Add(GetKeyStats(s.symbol));
+                PopulateStats();
+            }
+
+            var ourList = from ks in statsList
+                      where ks.evEBITDA <= 8 && ks.returnOnEquity >= 0.18 && ks.returnonCapital >= 0.12
+                      select ks;
+
+            return ourList.ToList();
         }
 
         /*
@@ -144,11 +164,11 @@ namespace ISM6225_Assignment4.Controllers
             return Equities;
         }
 
-        public List<Company> GetCompanies(string symbol)
+        public Company GetCompany(string symbol)
         {
             string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/company";
             string companyList = "";
-            List<Company> companies = null;
+            Company company = null;
 
             // connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
@@ -164,11 +184,10 @@ namespace ISM6225_Assignment4.Controllers
             if (!companyList.Equals(""))
             {
                 // https://stackoverflow.com/a/46280739
-                companies = JsonConvert.DeserializeObject<List<Company>>(companyList);
-                companies = companies.GetRange(0, 50);
+                company = JsonConvert.DeserializeObject<Company>(companyList);
             }
 
-            return companies;
+            return company;
         }
 
         /*
@@ -179,7 +198,7 @@ namespace ISM6225_Assignment4.Controllers
         {
             //Set ViewBag variable first
             ViewBag.dbSuccessComp = 0;
-            List<Company> companies = GetCompanies(symbol);
+            Company companies = GetCompany(symbol);
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Companies"] = JsonConvert.SerializeObject(companies);
@@ -210,11 +229,11 @@ namespace ISM6225_Assignment4.Controllers
             return View("Index", companies);
         }
 
-        public List<KeyStats> GetKeyStats(string symbol)
+        public KeyStats GetKeyStats(string symbol)
         {
             string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/stats";
             string kstatsList = "";
-            List<KeyStats> stats = null;
+            KeyStats stats = null;
 
             // connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
@@ -230,7 +249,11 @@ namespace ISM6225_Assignment4.Controllers
             if (!kstatsList.Equals(""))
             {
                 // https://stackoverflow.com/a/46280739
-                stats = JsonConvert.DeserializeObject<List<KeyStats>>(kstatsList);
+                stats = JsonConvert.DeserializeObject<KeyStats>(kstatsList);
+            }
+            if (stats.marketCap != null && stats.evEBITDA != null)
+            {
+                stats.evEBITDA = stats.marketCap / stats.EBITDA;
             }
 
             return stats;
@@ -244,7 +267,7 @@ namespace ISM6225_Assignment4.Controllers
         {
             //Set ViewBag variable first
             ViewBag.dbSuccessComp = 0;
-            List<KeyStats> stats = GetKeyStats(symbol);
+            KeyStats stats = GetKeyStats(symbol);
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Stats"] = JsonConvert.SerializeObject(stats);
@@ -275,11 +298,11 @@ namespace ISM6225_Assignment4.Controllers
             return View("Index", stats);
         }
 
-        public List<Quote> GetQuotes(string symbol)
+        public Quote GetQuotes(string symbol)
         {
             string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/quote";
             string quoteList = "";
-            List<Quote> quotes = null;
+            Quote quotes = null;
 
             // connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
@@ -295,8 +318,7 @@ namespace ISM6225_Assignment4.Controllers
             if (!quoteList.Equals(""))
             {
                 // https://stackoverflow.com/a/46280739
-                quotes = JsonConvert.DeserializeObject<List<Quote>>(quoteList);
-                quotes = quotes.GetRange(0, 50);
+                quotes = JsonConvert.DeserializeObject<Quote>(quoteList);
             }
 
             return quotes;
@@ -310,7 +332,7 @@ namespace ISM6225_Assignment4.Controllers
         {
             //Set ViewBag variable first
             ViewBag.dbSuccessComp = 0;
-            List<Quote> quotes = GetQuotes(symbol);
+            Quote quotes = GetQuotes(symbol);
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Quotes"] = JsonConvert.SerializeObject(quotes);
@@ -341,18 +363,72 @@ namespace ISM6225_Assignment4.Controllers
             return View("Index", quotes);
         }
 
+        public IActionResult SaveCharts(string symbol)
+        {
+            List<Equity> equities = GetChart(symbol);
+
+            // save the quote if the quote has not already been saved in the database
+            foreach (Equity equity in equities)
+            {
+                if (dbContext.Equities.Where(c => c.date.Equals(equity.date)).Count() == 0)
+                {
+                    dbContext.Equities.Add(equity);
+                }
+            }
+
+            // persist the data
+            dbContext.SaveChanges();
+
+            // populate the models to render in the view
+            ViewBag.dbSuccessChart = 1;
+            CompaniesEquities companiesEquities = getCompaniesEquitiesModel(equities);
+            return View("Chart", companiesEquities);
+        }
+
+        public CompaniesEquities getCompaniesEquitiesModel(List<Equity> equities)
+        {
+            List<Symbol> symbols = dbContext.Symbols.ToList();
+
+            if (equities.Count == 0)
+            {
+                return new CompaniesEquities(symbols, null, "", "", "", 0, 0);
+            }
+
+            Equity current = equities.Last();
+
+            // create appropriately formatted strings for use by chart.js
+            string dates = string.Join(",", equities.Select(e => e.date));
+            string prices = string.Join(",", equities.Select(e => e.high));
+            float avgprice = equities.Average(e => e.high);
+
+            //Divide volumes by million to scale appropriately
+            string volumes = string.Join(",", equities.Select(e => e.volume / 1000000));
+            double avgvol = equities.Average(e => e.volume) / 1000000;
+
+            return new CompaniesEquities(symbols, equities.Last(), dates, prices, volumes, avgprice, avgvol);
+        }
+
         // ******************************************************************************************************************//
 
 
         public IActionResult Index()
         {
             ViewBag.dbSuccessComp = 0;
-            List<Symbol> symbols = GetSymbols();
+            List<KeyStats> ourPicks = GetOurPicks();
 
-            //Save companies in TempData, so they do not have to be retrieved again
-            TempData["Symbols"] = JsonConvert.SerializeObject(symbols);
+            TempData["OurPicks"] = JsonConvert.SerializeObject(ourPicks);
 
-            return View(symbols);
+            return View("OurPicks", ourPicks);
+        }
+
+        public IActionResult OurPicks()
+        {
+            ViewBag.dbSuccessComp = 0;
+            List<KeyStats> ourPicks = GetOurPicks();
+
+            TempData["OurPicks"] = JsonConvert.SerializeObject(ourPicks);
+
+            return View(ourPicks);
         }
 
         public IActionResult About()

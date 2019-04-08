@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "KeyStats";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model ISM6225_Assignment4.Models.EF_Models.KeyStats
+
+<h2>KeyStats</h2>
+<table class="table">
+    <tr>
+        <td>
+            Name
+        </td>
+        <td>
+            @Model.companyName
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Symbol
+        </td>
+        <td>
+            @Model.symbol
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Price To Sales
+        </td>
+        <td>
+            @Model.priceToSales
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Price To Book
+        </td>
+        <td>
+            @Model.priceToBook
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Return On Equity
+        </td>
+        <td>
+            @Model.returnOnEquity
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Return On Capital
+        </td>
+        <td>
+            @Model.returnonCapital
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Market Capital
+        </td>
+        <td>
+            @Model.marketCap
+        </td>
+    </tr>
+    <tr>
+        <td>
+            EBITDA
+        </td>
+        <td>
+            @Model.EBITDA
+        </td>
+    </tr>
+</table>

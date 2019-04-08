@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Our Picks Page";
+}
+
+@model IEnumerable<ISM6225_Assignment4.Models.EF_Models.KeyStats>
+
+<h2>Symbols</h2>
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Symbol
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                KeyStats
+            </th>
+            <th>
+                Quote
+            </th>
+            <th>
+                Charts
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.symbol)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.companyName)
+                </td>
+                <td>
+                    link
+                </td>
+                <td>
+                    link
+                </td>
+                <td>
+                    link
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
