@@ -24,7 +24,8 @@ namespace ISM6225_Assignment4.Controllers
         //Base URL for the IEXTrading API. Method specific URLs are appended to this base URL.
         string BASE_URL = "https://api.iextrading.com/1.0/";
         HttpClient httpClient;
-
+        string[] STRONG_BUY = { "TLK", "STM", "PHM", "WSM", "CVI", "GPRK", "ATKR", "DQ", "METC", "CVGI" };
+        string[] STRONG_SELL = { "TGS", "LPI", "JE", "SBBP", "CELP", "OPHT", "BLPH" };
         /*
              These lines create a Constructor for the HomeController.
              Then, the Database context is defined in a variable.
@@ -62,30 +63,34 @@ namespace ISM6225_Assignment4.Controllers
             if (!symbolList.Equals(""))
             {
                 // https://stackoverflow.com/a/46280739
-                symbols = JsonConvert.DeserializeObject<List<Symbol>>(symbolList);
-                symbols = symbols.GetRange(0, 50);
+                symbols = JsonConvert.DeserializeObject<List<Symbol>>(symbolList);               
             }
 
             return symbols;
         }
 
-        public List<KeyStats> GetOurPicks()
+        public List<KeyStats> GetStrongBuys()
         {
-            List<Symbol> symbols = GetSymbols();
-            List<KeyStats> statsList = new List<KeyStats>();
-            //PopulateSymbols();
+            List<KeyStats> strongBuyList = new List<KeyStats>();
 
-            foreach (Symbol s in symbols)
+            for (int i = 0; i < STRONG_BUY.Length; i++)
             {
-                statsList.Add(GetKeyStats(s.symbol));
-                PopulateStats();
+                strongBuyList.Add(GetKeyStats(STRONG_BUY[i]));
             }
 
-            var ourList = from ks in statsList
-                      where ks.evEBITDA <= 8 && ks.returnOnEquity >= 0.18 && ks.returnonCapital >= 0.12
-                      select ks;
+            return strongBuyList;
+        }
 
-            return ourList.ToList();
+        public List<KeyStats> GetStrongSells()
+        {
+            List<KeyStats> strongSellList = new List<KeyStats>();
+
+            for (int i = 0; i < STRONG_SELL.Length; i++)
+            {
+                strongSellList.Add(GetKeyStats(STRONG_SELL[i]));
+            }
+
+            return strongSellList;
         }
 
         /*
@@ -170,6 +175,11 @@ namespace ISM6225_Assignment4.Controllers
             string companyList = "";
             Company company = null;
 
+            httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new
+                System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
             // connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
             HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
@@ -186,7 +196,6 @@ namespace ISM6225_Assignment4.Controllers
                 // https://stackoverflow.com/a/46280739
                 company = JsonConvert.DeserializeObject<Company>(companyList);
             }
-
             return company;
         }
 
@@ -194,7 +203,7 @@ namespace ISM6225_Assignment4.Controllers
             The Symbols action calls the GetSymbols method that returns a list of Companies.
             This list of Companies is passed to the Symbols View.
         */
-        public IActionResult Companies(string symbol)
+        public IActionResult Company(string symbol)
         {
             //Set ViewBag variable first
             ViewBag.dbSuccessComp = 0;
@@ -202,6 +211,7 @@ namespace ISM6225_Assignment4.Controllers
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Companies"] = JsonConvert.SerializeObject(companies);
+            PopulateCompanies();
 
             return View(companies);
         }
@@ -226,7 +236,7 @@ namespace ISM6225_Assignment4.Controllers
 
             dbContext.SaveChanges();
             ViewBag.dbSuccessComp = 1;
-            return View("Index", companies);
+            return View("Company", companies);
         }
 
         public KeyStats GetKeyStats(string symbol)
@@ -234,6 +244,11 @@ namespace ISM6225_Assignment4.Controllers
             string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/stats";
             string kstatsList = "";
             KeyStats stats = null;
+
+            httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new
+                System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
             // connect to the IEXTrading API and retrieve information
             httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
@@ -251,11 +266,6 @@ namespace ISM6225_Assignment4.Controllers
                 // https://stackoverflow.com/a/46280739
                 stats = JsonConvert.DeserializeObject<KeyStats>(kstatsList);
             }
-            if (stats.marketCap != null && stats.evEBITDA != null)
-            {
-                stats.evEBITDA = stats.marketCap / stats.EBITDA;
-            }
-
             return stats;
         }
 
@@ -278,12 +288,12 @@ namespace ISM6225_Assignment4.Controllers
         /*
             Save the available symbols in the database
         */
-        public IActionResult PopulateStats()
+        public IActionResult PopulateSBStats()
         {
             // Retrieve the companies that were saved in the symbols method
-            List<KeyStats> stats = JsonConvert.DeserializeObject<List<KeyStats>>(TempData["Stats"].ToString());
+            List<KeyStats> sb = JsonConvert.DeserializeObject<List<KeyStats>>(TempData["StrongBuys"].ToString());
 
-            foreach (KeyStats keyStats in stats)
+            foreach (KeyStats keyStats in sb)
             {
                 //Database will give PK constraint violation error when trying to insert record with existing PK.
                 //So add company only if it doesnt exist, check existence using symbol (PK)
@@ -295,7 +305,27 @@ namespace ISM6225_Assignment4.Controllers
 
             dbContext.SaveChanges();
             ViewBag.dbSuccessComp = 1;
-            return View("Index", stats);
+            return View("Index", sb);
+        }
+
+        public IActionResult PopulateSStats()
+        {
+            // Retrieve the companies that were saved in the symbols method
+            List<KeyStats> ss = JsonConvert.DeserializeObject<List<KeyStats>>(TempData["StrongSells"].ToString());
+
+            foreach (KeyStats keyStats in ss)
+            {
+                //Database will give PK constraint violation error when trying to insert record with existing PK.
+                //So add company only if it doesnt exist, check existence using symbol (PK)
+                if (dbContext.Stats.Where(ks => ks.KeyStatsId.Equals(keyStats.KeyStatsId)).Count() == 0)
+                {
+                    dbContext.Stats.Add(keyStats);
+                }
+            }
+
+            dbContext.SaveChanges();
+            ViewBag.dbSuccessComp = 1;
+            return View("Index", ss);
         }
 
         public Quote GetQuotes(string symbol)
@@ -336,6 +366,7 @@ namespace ISM6225_Assignment4.Controllers
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Quotes"] = JsonConvert.SerializeObject(quotes);
+            PopulateQuotes();
 
             return View(quotes);
         }
@@ -360,7 +391,7 @@ namespace ISM6225_Assignment4.Controllers
 
             dbContext.SaveChanges();
             ViewBag.dbSuccessComp = 1;
-            return View("Index", quotes);
+            return View("Quote", quotes);
         }
 
         public IActionResult SaveCharts(string symbol)
@@ -387,7 +418,7 @@ namespace ISM6225_Assignment4.Controllers
 
         public CompaniesEquities getCompaniesEquitiesModel(List<Equity> equities)
         {
-            List<Symbol> symbols = dbContext.Symbols.ToList();
+            List<KeyStats> symbols = dbContext.Stats.ToList();
 
             if (equities.Count == 0)
             {
@@ -413,22 +444,46 @@ namespace ISM6225_Assignment4.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.dbSuccessComp = 0;
-            List<KeyStats> ourPicks = GetOurPicks();
-
-            TempData["OurPicks"] = JsonConvert.SerializeObject(ourPicks);
-
-            return View("OurPicks", ourPicks);
+            return View();
         }
 
-        public IActionResult OurPicks()
+        public IActionResult StrongBuys()
         {
             ViewBag.dbSuccessComp = 0;
-            List<KeyStats> ourPicks = GetOurPicks();
+            List<KeyStats> strongBuyList = GetStrongBuys();
 
-            TempData["OurPicks"] = JsonConvert.SerializeObject(ourPicks);
+            TempData["StrongBuys"] = JsonConvert.SerializeObject(strongBuyList);
+            //PopulateSBStats();
 
-            return View(ourPicks);
+            return View(strongBuyList);
+        }
+
+        public IActionResult Chart(string symbol)
+        {
+            //Set ViewBag variable first
+            ViewBag.dbSuccessChart = 0;
+            List<Equity> equities = new List<Equity>();
+
+            if (symbol != null)
+            {
+                equities = GetChart(symbol);
+                equities = equities.OrderBy(c => c.date).ToList(); //Make sure the data is in ascending order of date.
+            }
+
+            CompaniesEquities companiesEquities = getCompaniesEquitiesModel(equities);
+
+            return View(companiesEquities);
+        }
+
+        public IActionResult StrongSells()
+        {
+            ViewBag.dbSuccessComp = 0;
+            List<KeyStats> strongSellList = GetStrongSells();
+
+            TempData["StrongSells"] = JsonConvert.SerializeObject(strongSellList);
+            //PopulateSStats();
+
+            return View(strongSellList);
         }
 
         public IActionResult About()

@@ -1,10 +1,11 @@
 ﻿@{
-    ViewData["Title"] = "Our Picks Page";
+    ViewData["Title"] = "Strong Sells";
 }
 
 @model IEnumerable<ISM6225_Assignment4.Models.EF_Models.KeyStats>
 
-<h2>Symbols</h2>
+<h2>Strong Sells</h2>
+<p> This page displays the stocks we believe are strong sells right now based on the important criteria in our About page.</p>
 <hr />
 
 <table class="table">
@@ -40,13 +41,13 @@
                     @Html.DisplayFor(modelItem => item.companyName)
                 </td>
                 <td>
-                    link
+                    <a asp-area="" asp-controller="Home" asp-action="Company" asp-route-symbol="@item.symbol">Company Info</a>
                 </td>
                 <td>
-                    link
+                    <a asp-area="" asp-controller="Home" asp-action="KeyStats" asp-route-symbol="@item.symbol">Key Stats</a>
                 </td>
                 <td>
-                    link
+                    <a asp-area="" asp-controller="Home" asp-action="Quote" asp-route-symbol="@item.symbol">Quote</a>
                 </td>
             </tr>
         }

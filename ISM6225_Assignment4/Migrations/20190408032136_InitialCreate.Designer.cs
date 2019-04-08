@@ -11,7 +11,7 @@ using System;
 namespace ISM6225_Assignment4.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190406223823_InitialCreate")]
+    [Migration("20190408032136_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,101 +88,101 @@ namespace ISM6225_Assignment4.Migrations
                     b.Property<int>("KeyStatsId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("EBITDA");
+                    b.Property<long?>("EBITDA");
 
-                    b.Property<int>("EPSSurpriseDollar");
+                    b.Property<float?>("EPSSurpriseDollar");
 
-                    b.Property<int>("EPSSurprisePercent");
+                    b.Property<float?>("EPSSurprisePercent");
 
-                    b.Property<int>("beta");
+                    b.Property<float?>("beta");
 
-                    b.Property<int>("cash");
+                    b.Property<long?>("cash");
 
                     b.Property<string>("companyName");
 
-                    b.Property<int>("consensusEPS");
+                    b.Property<float?>("consensusEPS");
 
-                    b.Property<int>("day200MovingAvg");
+                    b.Property<float?>("day200MovingAvg");
 
-                    b.Property<int>("day5ChangePercent");
+                    b.Property<float?>("day5ChangePercent");
 
-                    b.Property<int>("debt");
+                    b.Property<long?>("debt");
 
-                    b.Property<int>("dividendRate");
+                    b.Property<float?>("dividendRate");
 
-                    b.Property<int>("dividendYield");
+                    b.Property<float?>("dividendYield");
 
                     b.Property<string>("exDividendDate");
 
-                    b.Property<int>("floatStat");
+                    b.Property<long?>("floatStat");
 
-                    b.Property<int>("grossProfit");
+                    b.Property<long?>("grossProfit");
 
-                    b.Property<int>("insiderPercent");
+                    b.Property<float?>("insiderPercent");
 
-                    b.Property<int>("institutionPercent");
+                    b.Property<float?>("institutionPercent");
 
-                    b.Property<int>("latestEPS");
+                    b.Property<float?>("latestEPS");
 
                     b.Property<string>("latestEPSDate");
 
-                    b.Property<int>("marketCap");
+                    b.Property<long?>("marketCap");
 
-                    b.Property<int>("month1ChangePercent");
+                    b.Property<float?>("month1ChangePercent");
 
-                    b.Property<int>("month3ChangePercent");
+                    b.Property<float?>("month3ChangePercent");
 
-                    b.Property<int>("month6ChangePercent");
+                    b.Property<float?>("month6ChangePercent");
 
-                    b.Property<int>("numberofEstimates");
+                    b.Property<int?>("numberofEstimates");
 
-                    b.Property<int>("perRatioHigh");
+                    b.Property<float?>("perRatioHigh");
 
-                    b.Property<int>("perRatioLow");
+                    b.Property<float?>("perRatioLow");
 
-                    b.Property<int>("priceToBook");
+                    b.Property<float?>("priceToBook");
 
-                    b.Property<int>("priceToSales");
+                    b.Property<float?>("priceToSales");
 
-                    b.Property<int>("profitMargin");
+                    b.Property<float?>("profitMargin");
 
-                    b.Property<int>("returnOnAssets");
+                    b.Property<float?>("returnOnAssets");
 
-                    b.Property<int>("returnOnEquity");
+                    b.Property<float?>("returnOnEquity");
 
-                    b.Property<int>("returnonCapital");
+                    b.Property<float?>("returnonCapital");
 
-                    b.Property<int>("revenue");
+                    b.Property<long?>("revenue");
 
-                    b.Property<int>("revenuePerEmployee");
+                    b.Property<float?>("revenuePerEmployee");
 
-                    b.Property<int>("revenuePerShare");
+                    b.Property<float?>("revenuePerShare");
 
-                    b.Property<int>("sharesOutstanding");
+                    b.Property<long?>("sharesOutstanding");
 
-                    b.Property<int>("shortInterest");
+                    b.Property<int?>("shortInterest");
 
-                    b.Property<int>("shortRatio");
+                    b.Property<float?>("shortRatio");
 
                     b.Property<string>("shortdate");
 
                     b.Property<string>("symbol");
 
-                    b.Property<int>("ttmEPS");
+                    b.Property<float?>("ttmEPS");
 
-                    b.Property<int>("week52change");
+                    b.Property<float?>("week52change");
 
-                    b.Property<int>("week52high");
+                    b.Property<float?>("week52high");
 
-                    b.Property<int>("week52low");
+                    b.Property<float?>("week52low");
 
-                    b.Property<int>("year1ChangePercent");
+                    b.Property<float?>("year1ChangePercent");
 
-                    b.Property<int>("year2ChangePercent");
+                    b.Property<float?>("year2ChangePercent");
 
-                    b.Property<int>("year5ChangePercent");
+                    b.Property<float?>("year5ChangePercent");
 
-                    b.Property<int>("ytdChangePercent");
+                    b.Property<float?>("ytdChangePercent");
 
                     b.HasKey("KeyStatsId");
 

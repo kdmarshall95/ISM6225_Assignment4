@@ -1,8 +1,59 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Quote";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@model ISM6225_Assignment4.Models.EF_Models.Quote
+
 <h2>Quote</h2>
+<table class="table">
+    <tr>
+        <td>
+            Name
+        </td>
+        <td>
+            @Model.companyName
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Symbol
+        </td>
+        <td>
+            @Model.symbol
+        </td>
+    </tr>
+    <tr>
+        <td>
+            open
+        </td>
+        <td>
+            @Model.open
+        </td>
+    </tr>
+    <tr>
+        <td>
+            close
+        </td>
+        <td>
+            @Model.close
+        </td>
+    </tr>
+    <tr>
+        <td>
+            high
+        </td>
+        <td>
+            @Model.high
+        </td>
+    </tr>
+    <tr>
+        <td>
+            low
+        </td>
+        <td>
+            @Model.low
+        </td>
+    </tr>
+</table>
 

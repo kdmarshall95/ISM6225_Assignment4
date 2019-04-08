@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Strong Buys";
+}
+
+@model IEnumerable<ISM6225_Assignment4.Models.EF_Models.KeyStats>
+
+<h2>Strong Buys</h2>
+<p> This page displays the stocks we believe are strong buys right now based on the important criteria in our About page.</p>
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Symbol
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Company Info
+            </th>
+            <th>
+                KeyStats
+            </th>
+            <th>
+                Quote
+            </th>
+            <th>
+                Chart
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.symbol)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.companyName)
+                </td>
+                <td>
+                    <a asp-area="" asp-controller="Home" asp-action="Company" asp-route-symbol="@item.symbol">Company Info</a>
+                </td>
+                <td>
+                    <a asp-area="" asp-controller="Home" asp-action="KeyStats" asp-route-symbol="@item.symbol">Key Stats</a>
+                </td>
+                <td>
+                    <a asp-area="" asp-controller="Home" asp-action="Quote" asp-route-symbol="@item.symbol">Quote</a>
+                </td>
+                <td>
+                    <a asp-area="" asp-controller="Home" asp-action="Chart" asp-route-symbol="@item.symbol">Chart</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -2,47 +2,12 @@
     ViewData["Title"] = "Home Page";
 }
 
-@model IEnumerable<ISM6225_Assignment4.Models.EF_Models.Symbol>
-
-<h2>Symbols</h2>
-<hr />
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Symbol
-            </th>
-            <th>
-                Name
-            </th>
-            <th>
-                Date
-            </th>
-            <th>
-                Type
-            </th>
-        </tr>
-    </thead>
-
-    <tbody>
-
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.symbol)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.date)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.type)
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<h1 align ="center">
+    Welcome to our Site for Stock Picks.
+</h1>
+<h2 align ="center">
+    Please browse our site to look at what stock we think you should buy or sell.
+</h2>
+<h2 align ="center">
+    You can find out how we picked our stocks by looking on the About Page. 
+</h2>

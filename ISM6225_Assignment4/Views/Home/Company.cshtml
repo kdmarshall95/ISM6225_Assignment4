@@ -1,8 +1,50 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Company";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Company</h2>
+@model ISM6225_Assignment4.Models.EF_Models.Company
 
+<h2>Company</h2>
+<table class="table">
+    <tr>
+        <td>
+            Company Name
+        </td>
+        <td>
+            @Model.companyName
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Symbol
+        </td>
+        <td>
+            @Model.symbol
+        </td>
+        </tr>
+    <tr>
+        <td>
+            Industry
+        </td>
+        <td>
+            @Model.industry
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Sector
+        </td>
+        <td>
+            @Model.sector
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Exchange
+        </td>
+        <td>
+            @Model.exchange
+        </td>
+    </tr>
+</table>

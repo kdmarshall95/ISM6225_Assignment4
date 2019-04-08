@@ -6,9 +6,10 @@ using static ISM6225_Assignment4.Models.EF_Models;
 
 namespace ISM6225_Assignment4.Models
 {
+
     public class CompaniesEquities
     {
-        public List<Symbol> Symbols { get; set; }
+        public List<KeyStats> Symbols { get; set; }
         public Equity Current { get; set; }
         public string Dates { get; set; }
         public string Prices { get; set; }
@@ -16,7 +17,7 @@ namespace ISM6225_Assignment4.Models
         public float AvgPrice { get; set; }
         public double AvgVolume { get; set; }
 
-        public CompaniesEquities(List<Symbol> symbols, Equity current,
+        public CompaniesEquities(List<KeyStats> symbols, Equity current,
                                           string dates, string prices, string volumes,
                                           float avgprice, double avgvolume)
         {
@@ -29,5 +30,5 @@ namespace ISM6225_Assignment4.Models
             AvgVolume = avgvolume;
         }
     }
-}
 
+}
