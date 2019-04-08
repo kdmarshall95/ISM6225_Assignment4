@@ -211,7 +211,7 @@ namespace ISM6225_Assignment4.Controllers
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Companies"] = JsonConvert.SerializeObject(companies);
-            PopulateCompanies();
+            //PopulateCompanies();
 
             return View(companies);
         }
@@ -358,7 +358,7 @@ namespace ISM6225_Assignment4.Controllers
             The Symbols action calls the GetSymbols method that returns a list of Companies.
             This list of Companies is passed to the Symbols View.
         */
-        public IActionResult Quotes(string symbol)
+        public IActionResult Quote(string symbol)
         {
             //Set ViewBag variable first
             ViewBag.dbSuccessComp = 0;
@@ -366,7 +366,7 @@ namespace ISM6225_Assignment4.Controllers
 
             //Save companies in TempData, so they do not have to be retrieved again
             TempData["Quotes"] = JsonConvert.SerializeObject(quotes);
-            PopulateQuotes();
+            //PopulateQuotes();
 
             return View(quotes);
         }

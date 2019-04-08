@@ -117,40 +117,41 @@ namespace ISM6225_Assignment4.Models
             public string primaryExchange { get; set; }
             public string sector { get; set; }
             public string calculationPrice { get; set; }
-            public int open { get; set; }
-            public int openType { get; set; }
-            public int close { get; set; }
-            public int closeType { get; set; }
-            public int high { get; set; }
-            public int low { get; set; }
-            public int latestPrice { get; set; }
+            public float? open { get; set; }
+            public long? openTime { get; set; }
+            public float? close { get; set; }
+            public long? closeTime { get; set; }
+            public float? high { get; set; }
+            public float? low { get; set; }
+            public float? latestPrice { get; set; }
             public string latestSource { get; set; }
             public string latestTime { get; set; }
-            public int latestUpdate { get; set; }
-            public int latestVolume { get; set; }
-            public int iexRealtimePrice { get; set; }
-            public int iexRealtimeSize { get; set; }
-            public int iexLastUpdated { get; set; }
-            public int delayedPrice { get; set; }
-            public int delayedPriceTime { get; set; }
-            public int extendedPrice { get; set; }
-            public int extendedChange { get; set; }
-            public int extendedChangePercent { get; set; }
-            public int extendedPriceTime { get; set; }
-            public int change { get; set; }
-            public int changePercent { get; set; }
-            public int iexMarketPercent { get; set; }
-            public int iexVolume { get; set; }
-            public int avgTotalVolume { get; set; }
-            public int iexBidPrice { get; set; }
-            public int iexBidSize { get; set; }
-            public int iexAskPrice { get; set; }
-            public int iexAskSize { get; set; }
-            public int marketCap { get; set; }
-            public int peRatio { get; set; }
-            public int week52High { get; set; }
-            public int week52Low { get; set; }
-            public int ytdChange { get; set; }
+            public long? latestUpdate { get; set; }
+            public long? latestVolume { get; set; }
+            public float? iexRealtimePrice { get; set; }
+            public int? iexRealtimeSize { get; set; }
+            public long? iexLastUpdated { get; set; }
+            public float? delayedPrice { get; set; }
+            public long? delayedPriceTime { get; set; }
+            public float? extendedPrice { get; set; }
+            public float? extendedChange { get; set; }
+            public float? extendedChangePercent { get; set; }
+            public long? extendedPriceTime { get; set; }
+            public float? previousClose { get; set; }
+            public float? change { get; set; }
+            public float? changePercent { get; set; }
+            public float? iexMarketPercent { get; set; }
+            public int? iexVolume { get; set; }
+            public long? avgTotalVolume { get; set; }
+            public float? iexBidPrice { get; set; }
+            public int? iexBidSize { get; set; }
+            public float? iexAskPrice { get; set; }
+            public int? iexAskSize { get; set; }
+            public long? marketCap { get; set; }
+            public float? peRatio { get; set; }
+            public float? week52High { get; set; }
+            public float? week52Low { get; set; }
+            public float? ytdChange { get; set; }
         }
     }
 }
