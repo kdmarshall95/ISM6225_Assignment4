@@ -132,7 +132,7 @@ namespace ISM6225_Assignment4.Controllers
             return View("Index", symbols);
         }
 
-        public List<Equity> GetChart(string symbol)
+        /*public List<Equity> GetChart(string symbol)
         {
             // string to specify information to be retrieved from the API
             string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/batch?types=chart&range=1y";
@@ -168,6 +168,7 @@ namespace ISM6225_Assignment4.Controllers
 
             return Equities;
         }
+        */
 
         public Company GetCompany(string symbol)
         {
@@ -197,6 +198,49 @@ namespace ISM6225_Assignment4.Controllers
                 company = JsonConvert.DeserializeObject<Company>(companyList);
             }
             return company;
+        }
+
+        public List<News> GetNews(string symbol)
+        {
+            string IEXTrading_API_PATH = BASE_URL + "stock/" + symbol + "/news/last/5";
+            string newsList = "";
+            List<News> news = null;
+
+            httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new
+                System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+            // connect to the IEXTrading API and retrieve information
+            httpClient.BaseAddress = new Uri(IEXTrading_API_PATH);
+            HttpResponseMessage response = httpClient.GetAsync(IEXTrading_API_PATH).GetAwaiter().GetResult();
+
+            // read the Json objects in the API response
+            if (response.IsSuccessStatusCode)
+            {
+                newsList = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
+            // now, parse the Json strings as C# objects
+            if (!newsList.Equals(""))
+            {
+                // https://stackoverflow.com/a/46280739
+                news = JsonConvert.DeserializeObject<List<News>>(newsList);
+            }
+            return news;
+        }
+
+        public IActionResult News(string symbol)
+        {
+            //Set ViewBag variable first
+            ViewBag.dbSuccessComp = 0;
+            List<News> news = GetNews(symbol);
+
+            //Save companies in TempData, so they do not have to be retrieved again
+            TempData["News"] = JsonConvert.SerializeObject(news);
+            //PopulateCompanies();
+
+            return View(news);
         }
 
         /*
@@ -394,7 +438,7 @@ namespace ISM6225_Assignment4.Controllers
             return View("Quote", quotes);
         }
 
-        public IActionResult SaveCharts(string symbol)
+        /* public IActionResult SaveCharts(string symbol)
         {
             List<Equity> equities = GetChart(symbol);
 
@@ -415,7 +459,7 @@ namespace ISM6225_Assignment4.Controllers
             CompaniesEquities companiesEquities = getCompaniesEquitiesModel(equities);
             return View("Chart", companiesEquities);
         }
-
+        
         public CompaniesEquities getCompaniesEquitiesModel(List<Equity> equities)
         {
             List<KeyStats> symbols = dbContext.Stats.ToList();
@@ -438,8 +482,9 @@ namespace ISM6225_Assignment4.Controllers
 
             return new CompaniesEquities(symbols, equities.Last(), dates, prices, volumes, avgprice, avgvol);
         }
+        */
 
-        // ******************************************************************************************************************//
+        // ******************************************************************************************************************
 
 
         public IActionResult Index()
@@ -458,7 +503,7 @@ namespace ISM6225_Assignment4.Controllers
             return View(strongBuyList);
         }
 
-        public IActionResult Chart(string symbol)
+        /*public IActionResult Chart(string symbol)
         {
             //Set ViewBag variable first
             ViewBag.dbSuccessChart = 0;
@@ -474,7 +519,7 @@ namespace ISM6225_Assignment4.Controllers
 
             return View(companiesEquities);
         }
-
+        */
         public IActionResult StrongSells()
         {
             ViewBag.dbSuccessComp = 0;

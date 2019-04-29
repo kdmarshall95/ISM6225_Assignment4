@@ -153,5 +153,17 @@ namespace ISM6225_Assignment4.Models
             public float? week52Low { get; set; }
             public float? ytdChange { get; set; }
         }
+
+        public class News
+        {
+            public string datetime { get; set; }
+            public string headline { get; set; }
+            public string source { get; set; }
+            public string url { get; set; }
+            public string summary { get; set; }
+            [NotMapped]
+            public string related { get; set; }
+            public string image { get; set; }
+        }
     }
 }

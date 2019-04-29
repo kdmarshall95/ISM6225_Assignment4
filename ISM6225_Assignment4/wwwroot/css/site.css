@@ -1,9 +1,4 @@
-﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
-}
-
-/* Wrapping element */
+﻿/* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
     padding-left: 15px;
@@ -32,4 +27,30 @@
     .carousel-caption {
         display: none;
     }
+}
+
+body {
+    background-color: #CFC493;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: #006747;
+}
+
+.nav-bar {
+    background-color: #006747;
+    color: #CFC493;
+    font-size: x-large;
+}
+
+    .nav-bar > a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+td {
+    padding: 10px;
+}
+
+table {
+    border-spacing: 10px;
+    border-collapse: separate;
 }
